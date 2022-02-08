@@ -23,6 +23,11 @@ include 'config/common.php';
     <div class="card-header">
       <a href="user-add.php" class="btn btn-success">New User</a>
     </div>
+    <?php if(isset($_GET['del'])): ?>
+      <div class="alert alert-warning">
+        A role deleted!
+      </div>
+    <?php endif ?>
     <div class="card-body">
         <div class="card-title"></div>
         <table class="table">

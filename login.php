@@ -1,3 +1,25 @@
+<?php
+	session_start();
+	require 'admin/config/db.php';
+	require 'admin/config/common.php';
+	if($_POST){
+		$email=$_POST['email'];
+		$password=$_POST['password'];
+		$stmt=$pdo->prepare("SELECT * FROM users WHERE email=:email");
+		$stmt->execute([':email'=>$email]);
+		$user=$stmt->fetch(PDO::FETCH_ASSOC);
+		if ($user) {
+			if (password_verify($password,$user['password'])) {
+			  $_SESSION['user_id'] = $user['id'];
+			  $_SESSION['username'] = $user['name'];
+			  $_SESSION['logged_in'] = time();
+			  $_SESSION['role'] = 1;
+		
+			  header('Location: index.php');
+			}
+		}	
+	}
+?>
 <!DOCTYPE html>
 <html lang="zxx" class="no-js">
 
@@ -47,44 +69,8 @@
 					</button>
 					<!-- Collect the nav links, forms, and other content for toggling -->
 					<div class="collapse navbar-collapse offset" id="navbarSupportedContent">
-						<ul class="nav navbar-nav menu_nav ml-auto">
-							<li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-							<li class="nav-item submenu dropdown">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-								 aria-expanded="false">Shop</a>
-								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="category.html">Shop Category</a></li>
-									<li class="nav-item"><a class="nav-link" href="single-product.html">Product Details</a></li>
-									<li class="nav-item"><a class="nav-link" href="checkout.html">Product Checkout</a></li>
-									<li class="nav-item"><a class="nav-link" href="cart.html">Shopping Cart</a></li>
-									<li class="nav-item"><a class="nav-link" href="confirmation.html">Confirmation</a></li>
-								</ul>
-							</li>
-							<li class="nav-item submenu dropdown">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-								 aria-expanded="false">Blog</a>
-								<ul class="dropdown-menu">
-									<li class="nav-item"><a class="nav-link" href="blog.html">Blog</a></li>
-									<li class="nav-item"><a class="nav-link" href="single-blog.html">Blog Details</a></li>
-								</ul>
-							</li>
-							<li class="nav-item submenu dropdown active">
-								<a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true"
-								 aria-expanded="false">Pages</a>
-								<ul class="dropdown-menu">
-									<li class="nav-item active"><a class="nav-link" href="login.html">Login</a></li>
-									<li class="nav-item"><a class="nav-link" href="tracking.html">Tracking</a></li>
-									<li class="nav-item"><a class="nav-link" href="elements.html">Elements</a></li>
-								</ul>
-							</li>
-							<li class="nav-item"><a class="nav-link" href="contact.html">Contact</a></li>
-						</ul>
-						<ul class="nav navbar-nav navbar-right">
-							<li class="nav-item"><a href="#" class="cart"><span class="ti-bag"></span></a></li>
-							<li class="nav-item">
-								<button class="search"><span class="lnr lnr-magnifier" id="search"></span></button>
-							</li>
-						</ul>
+						
+						
 					</div>
 				</div>
 			</nav>
@@ -118,35 +104,27 @@
 	<!-- End Banner Area -->
 
 	<!--================Login Box Area =================-->
+	<?php
+
+	?>
 	<section class="login_box_area section_gap">
 		<div class="container">
 			<div class="row">
-				<div class="col-lg-6">
-					<div class="login_box_img">
-						<img class="img-fluid" src="img/login.jpg" alt="">
-						<div class="hover">
-							<h4>New to our website?</h4>
-							<p>There are advances being made in science and technology everyday, and a good example of this is the</p>
-							<a class="primary-btn" href="registration.html">Create an Account</a>
-						</div>
-					</div>
-				</div>
-				<div class="col-lg-6">
+			
+				<div class="col-lg-12">
 					<div class="login_form_inner">
 						<h3>Log in to enter</h3>
-						<form class="row login_form" action="contact_process.php" method="post" id="contactForm" novalidate="novalidate">
+						<form class="row login_form" action="login.php" method="post" id="contactForm" novalidate="novalidate">
+							<input type="hidden" name="_token" value="<?php echo $_SESSION['_token']; ?>">
 							<div class="col-md-12 form-group">
-								<input type="text" class="form-control" id="name" name="name" placeholder="Username" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Username'">
+								<input type="text" class="form-control" id="name" name="email" 
+								placeholder="Username" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Username'">
 							</div>
 							<div class="col-md-12 form-group">
-								<input type="text" class="form-control" id="name" name="name" placeholder="Password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'">
+								<input type="password" class="form-control" id="name" name="password" 
+								placeholder="Password" onfocus="this.placeholder = ''" onblur="this.placeholder = 'Password'">
 							</div>
-							<div class="col-md-12 form-group">
-								<div class="creat_account">
-									<input type="checkbox" id="f-option2" name="selector">
-									<label for="f-option2">Keep me logged in</label>
-								</div>
-							</div>
+							
 							<div class="col-md-12 form-group">
 								<button type="submit" value="submit" class="primary-btn">Log In</button>
 								<a href="#">Forgot Password?</a>

@@ -124,7 +124,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </a>
           </li>
           <li class="nav-item">
-            <a href="Product-list.php" class="nav-link">              
+            <a href="index.php" class="nav-link">              
             <i class="nav-icon fas fa-tools"></i>
               <p>
                PRODUCTS       
@@ -136,6 +136,14 @@ scratch. This page gets rid of all links and provides the needed markup only.
             <i class="nav-icon fas fa-bars"></i>
               <p>
                CATEGORIES       
+              </p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="order-list.php" class="nav-link">              
+            <i class="nav-icon fas fa-bars"></i>
+              <p>
+               order     
               </p>
             </a>
           </li>

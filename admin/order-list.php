@@ -30,40 +30,50 @@ require 'header.php';
               $numRec=2;
               $offSet= ($pageno-1)*$numRec;
 
-                $stmt=$pdo->prepare("SELECT * FROM categories");
+                $stmt=$pdo->prepare("SELECT * FROM sale_orders");
                 $stmt->execute();
                 $rawResult=$stmt->fetchAll();
                 $totalPages= ceil(count($rawResult)/$numRec);
                   if($totalPages){
-                    $stmt=$pdo->prepare("SELECT * FROM categories ORDER BY id DESC LIMIT $offSet, $numRec");
+                    $stmt=$pdo->prepare("SELECT * FROM sale_orders ORDER BY id DESC LIMIT $offSet, $numRec");
                     $stmt->execute();
                     $result=$stmt->fetchAll();
                   }
+                  $i=1;
             ?>
             <thead>
-                <th>Name</th>
-                <th>Description</th>
+                <th>#</th>
+                <th>User</th>
+                <th>Total Price</th>
+                <th>Order Date</th>
                 <th>Action</th>
+
             </thead>
             <tbody>
                <?php foreach($result as $data): ?>
+                <?php
+                    $userStmt=$pdo->prepare("SELECT * FROM users WHERE id=".$data['user_id']);
+                    $userStmt->execute();
+                    $user=$userStmt->fetchAll();
+                ?>
                 <tr>
-                   <td><?= $data['name']?></td>
-                   <td><?= $data['description']?></td>
+                    <td><?= $i; ?></td>
+                   <td><?= $user[0]['name']?></td>
+                   <td><?= $data['total_price']?></td>
+                   <td><?= date('Y-m-d',strtotime($data['order_date']))?></td>
                    <td>
                           <div class="btn-group">
                             <div class="container">
-                              <a href="cat-edit.php?id=<?= escape($data['id'])?>" class="btn btn-primary">Edit</a>
+                              <a href="order-detail.php?id=<?= escape($data['id'])?>" class="btn btn-primary">View Detail</a>
                             </div>
-                            <div class="container">
-                              <a href="cat-del.php?id=<?= escape($data['id']) ?>" class="btn btn-danger">DEL</a>
-                            </div>
-                          </div>
-                        </td>
+                            
+                    </td>
                </tr>
+               <?php $i++; ?>
                <?php endforeach; ?>
             </tbody>
         </table>
+        <hr>
         <nav aria-label="Page navigation example" style="float:right">
             <ul class="pagination">
               <li class="page-item"><a class="page-link" href="?$pageno=1">First</a></li>

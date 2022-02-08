@@ -1,14 +1,131 @@
-<?php 
-  session_start();
-  require "config/db.php";
-  require "config/common.php";
-  if(empty($_SESSION['user_id']) and empty($_SESSION['logged_in'])) {
-    header("location:login.php");
+<?php
+session_start();
+include 'config/db.php';
+include 'config/common.php';
+  if(empty($_SESSION['user_id']) && empty($_SESSION['log_in'])){
+    header('location: login.php');
+  } 
+
+  if (isset($_POST['search'])) {
+    setcookie("search",$_POST['search'], time() + (86400 * 30), "/");
+  }else{
+    if (empty($_GET['pageno'])) {
+      unset($_COOKIE['search']); 
+      setcookie("search", null, -1, '/'); 
+    }
   }
- 
-  include('header.php');
-?>
   
-                     
-           
-  <?php  include('footer.php'); ?>
+  
+?>
+<?php require 'header.php';?>
+<div class="container-fluid mt-0" >
+<div class="card">
+    <div class="card-header">
+      <a href="product-add.php" class="btn btn-success">New Product</a>
+    </div>
+    <?php if(isset($_GET['del'])): ?>
+      <div class="alert alert-warning">
+        A role deleted!
+      </div>
+    <?php endif ?>
+    <div class="card-body">
+        <div class="card-title"></div>
+        <table class="table">
+            <!-- pagination/ db -->           
+            <?php
+              if(!empty($_GET['pageno'])){
+                $pageno=$_GET['pageno'];
+              }else{
+                $pageno=1;
+              }
+              $numRec=4;
+              $offSet=($pageno-1) *$numRec;
+              
+                if(empty($_POST['search']) && empty($_COOKIE['search'])){
+                  $stmt=$pdo->prepare("SELECT * FROM products ORDER BY id DESC");
+                  $stmt->execute();
+                  $rawResult=$stmt->fetchAll();
+                  $totalPages=ceil(count($rawResult)/$numRec);
+                  
+                    $stmt=$pdo->prepare("SELECT * FROM products ORDER BY id DESC LIMIT $offSet, $numRec");
+                    $stmt->execute();
+                    $result=$stmt->fetchAll();
+                  
+                }else{
+                  $searchKey = !empty($_POST['search']) ? $_POST['search'] : $_COOKIE['search'];                  
+                  $stmt=$pdo->prepare("SELECT * FROM products WHERE name LIKE '%$searchKey%' ORDER BY id DESC");
+                  $stmt->execute();
+                  $rawResult=$stmt->fetchAll();
+                  $totalPages=ceil(count($rawResult)/$numRec);
+                  
+                    $stmt=$pdo->prepare("SELECT * FROM products WHERE name LIKE '%$searchKey%' ORDER BY id DESC LIMIT $offSet, $numRec");
+                    $stmt->execute();
+                    $result=$stmt->fetchAll();
+                  
+                }
+
+            ?>
+            <thead>
+                <th>Name</th>
+                <th>Desc</th>
+                <th>Price</th>
+                <th>Qty</th>
+                <th>category</th>
+                <th>Action</th>
+            </thead>
+            <tbody>
+               <?php foreach($result as $data): ?>
+                <?php 
+                  $catStmt=$pdo->prepare("SELECT * FROM categories WHERE id=".$data['category_id']);  
+                  $catStmt->execute();
+                  $catResult=$catStmt->fetchAll();
+                ?>
+                <tr>
+                   <td><?= $data['name']?></td>
+                   <td><?= $data['description']?></td>
+                   <td><?= $data['price'] ?></td>
+                   <td><?= $data['qty'] ?></td>
+                   <td><?= $catResult[0]['name'] ?></td>
+                   <td>
+                          <div class="btn-group">
+                            <div class="container">
+                              <a href="product-edit.php?id=<?= escape($data['id'])?>" class="btn btn-primary">Edit</a>
+                            </div>
+                            <div class="container">
+                              <a href="product-del.php?id=<?= escape($data['id']) ?>" class="btn btn-danger">DEL</a>
+                            </div>
+                          </div>
+                        </td>
+               </tr>
+               <?php endforeach; ?>
+            </tbody>
+        </table>
+        <!-- pagination  -->
+          <nav aria-label="Page navigation example" style="float:right">
+            <ul class="pagination">
+              <li class="page-item"><a class="page-link" href="?pageno=1">First</a></li>
+              <li class="page-item <?php if($pageno <= 1){echo 'disabled';} ?>">
+                <a class="page-link" href="<?php if($pageno<=1) { echo '#';} else{ echo '?pageno='.($pageno-1);}?>">Previous</a>
+              </li>
+              <li class="page-item"><a class="page-link" href="#">
+                <?= $pageno ?></a>
+              </li>
+              <li class="page-item <?php if($pageno>=$totalPages){echo 'disabled';} ?>">
+                <a class="page-link" href="<?php if($pageno >= $totalPages) {echo '#';} else{echo '?pageno='.($pageno+1);}?>">Next</a>
+              </li>
+              <li class="page-item">
+                <a class="page-link" href="?pageno=<?= $totalPages ?>">Last</a>
+              </li>
+            </ul>
+          </nav>
+        
+    </div>
+
+</div>
+</div>
+
+
+
+<?php
+require 'footer.php';
+?>
